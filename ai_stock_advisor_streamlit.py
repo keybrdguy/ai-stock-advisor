@@ -19,34 +19,20 @@ period = st.sidebar.selectbox("Data Period", ["1mo", "3mo", "6mo", "1y", "2y"], 
 default_tickers = ["AAPL", "MSFT", "NVDA", "SPY", "QQQ", "GLD", "SLV"]
 
 def get_recommendation(df):
-    """Ultra-safe recommendation logic"""
+    """Super safe recommendation logic"""
     if df.empty or len(df) < 30:
         return "HOLD", 50, "Insufficient data"
     
     close = df["Close"]
     current_price = float(close.iloc[-1])
-    sma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) > 50 else current_price
-    sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) > 200 else current_price
-    rsi_val = calculate_rsi(close)
+    recent_mean = float(close.tail(20).mean())
     
-    score = 0
-    if current_price > sma50:
-        score += 2
-    if sma50 > sma200:
-        score += 3
-    if rsi_val < 35:
-        score += 3
-    elif rsi_val > 70:
-        score -= 2
+    score = 1 if current_price > recent_mean else -1
     
-    if score >= 5:
-        return "STRONG BUY", 80, "Strong uptrend + oversold momentum"
-    elif score >= 2:
-        return "BUY", 70, "Positive trend signals"
-    elif score <= -2:
-        return "SELL", 60, "Bearish signals detected"
+    if score > 0:
+        return "BUY", 65, "Price above recent average"
     else:
-        return "HOLD", 55, "Mixed technical signals"
+        return "HOLD", 50, "Mixed or downtrend signals"
 
 def calculate_rsi(data, window=14):
     """Safe RSI calculation returning scalar"""
