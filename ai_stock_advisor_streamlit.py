@@ -96,6 +96,42 @@ with tab4:
         
         st.error("⚠️ RISK WARNING: Never risk more than 1-2% of total capital per trade. This is for educational practice only.")
 
+    st.divider()
+    st.subheader("📊 Portfolio Correlation Analysis")
+    st.caption("See how your holdings move together (diversification insight)")
+
+    corr_tickers = st.text_input("Tickers (comma separated)", "SPY, QQQ, GLD, TLT").upper().replace(" ", "")
+    corr_period = st.selectbox("Correlation Period", ["1y", "2y", "5y"], index=1)
+
+    if st.button("Analyze Correlations"):
+        tickers_list = [t.strip() for t in corr_tickers.split(",") if t.strip()]
+        if len(tickers_list) < 2:
+            st.warning("Enter at least 2 tickers.")
+        else:
+            with st.spinner("Fetching data..."):
+                try:
+                    data = yf.download(tickers_list, period=corr_period, progress=False)["Close"]
+                    if data.empty:
+                        st.error("No data retrieved.")
+                    else:
+                        returns = data.pct_change().dropna()
+                        corr_matrix = returns.corr()
+                        
+                        st.dataframe(corr_matrix.style.background_gradient(cmap="RdYlGn", axis=None))
+                        
+                        # Simple interpretation
+                        avg_corr = corr_matrix.mean().mean()
+                        if avg_corr > 0.7:
+                            st.warning("High average correlation — limited diversification benefit.")
+                        elif avg_corr < 0.3:
+                            st.success("Low average correlation — good diversification.")
+                        else:
+                            st.info("Moderate correlation — decent diversification.")
+                        
+                        st.error("⚠️ RISK WARNING: Correlation can change over time, especially in market stress. Diversify across asset classes.")
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
 with tab5:
     st.subheader("📉 Backtester (Practice)")
     st.caption("Simple SMA Crossover strategy backtest — educational only")
