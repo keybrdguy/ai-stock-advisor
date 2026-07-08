@@ -19,7 +19,7 @@ period = st.sidebar.selectbox("Data Period", ["1mo", "3mo", "6mo", "1y", "2y"], 
 default_tickers = ["AAPL", "MSFT", "NVDA", "SPY", "QQQ", "GLD", "SLV"]
 
 def get_recommendation(df):
-    """Simple recommendation logic for Streamlit"""
+    """Ultra-safe recommendation logic"""
     if df.empty or len(df) < 30:
         return "HOLD", 50, "Insufficient data"
     
