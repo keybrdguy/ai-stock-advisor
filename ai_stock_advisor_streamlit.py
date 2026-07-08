@@ -19,16 +19,17 @@ period = st.sidebar.selectbox("Data Period", ["1mo", "3mo", "6mo", "1y", "2y"], 
 default_tickers = ["AAPL", "MSFT", "NVDA", "SPY", "QQQ", "GLD", "SLV"]
 
 def get_recommendation(df):
-    if df.empty or len(df) < 50:
+    if df.empty or len(df) < 30:
         return "HOLD", 50, "Insufficient data"
     
     close = df["Close"]
-    sma50 = close.rolling(50).mean().iloc[-1]
-    sma200 = close.rolling(200).mean().iloc[-1] if len(close) > 200 else close.mean()
-    rsi = calculate_rsi(close)
+    current_price = float(close.iloc[-1])
+    sma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) > 50 else current_price
+    sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) > 200 else current_price
+    rsi = float(calculate_rsi(close))
     
     score = 0
-    if close.iloc[-1] > sma50:
+    if current_price > sma50:
         score += 2
     if sma50 > sma200:
         score += 3
