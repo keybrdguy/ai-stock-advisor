@@ -19,6 +19,7 @@ period = st.sidebar.selectbox("Data Period", ["1mo", "3mo", "6mo", "1y", "2y"], 
 default_tickers = ["AAPL", "MSFT", "NVDA", "SPY", "QQQ", "GLD", "SLV"]
 
 def get_recommendation(df):
+    """Simple recommendation logic for Streamlit"""
     if df.empty or len(df) < 30:
         return "HOLD", 50, "Insufficient data"
     
@@ -48,11 +49,13 @@ def get_recommendation(df):
         return "HOLD", 55, "Mixed technical signals"
 
 def calculate_rsi(data, window=14):
+    """Safe RSI calculation returning scalar"""
     delta = data.diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
     rs = gain / loss
-    return 100 - (100 / (1 + rs)).iloc[-1]
+    rsi_series = 100 - (100 / (1 + rs))
+    return float(rsi_series.iloc[-1]) if not rsi_series.empty else 50.0
 
 # Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Watchlist / Scanner", "📈 Custom Analysis", "💼 Virtual Portfolio", "🛡️ Risk Tools", "📉 Backtester"])
