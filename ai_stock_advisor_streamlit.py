@@ -26,16 +26,16 @@ def get_recommendation(df):
     current_price = float(close.iloc[-1])
     sma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) > 50 else current_price
     sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) > 200 else current_price
-    rsi = float(calculate_rsi(close))
+    rsi_val = calculate_rsi(close)
     
     score = 0
     if current_price > sma50:
         score += 2
     if sma50 > sma200:
         score += 3
-    if rsi < 35:
+    if rsi_val < 35:
         score += 3
-    elif rsi > 70:
+    elif rsi_val > 70:
         score -= 2
     
     if score >= 5:
